@@ -20,8 +20,8 @@ public:
 	//void changeBoardSize(int newSize);
 	//void setBackwardJump(bool backJump);
 
-	void movePiece(int startRow, int startCol, int endRow, int endCol);
-	void jumpPiece(int startRow, int startCol, int endRow, int endCol);
+	bool movePiece(int startRow, int startCol, int endRow, int endCol);
+	bool jumpPiece(int startRow, int startCol, int endRow, int endCol);
 	bool isOccupied(int row, int col) const;
 
 	Piece* getPiece(int row, int col) const;

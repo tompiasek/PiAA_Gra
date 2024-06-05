@@ -18,6 +18,7 @@ add_executable("PiAA-Project_3-Game" "src/main.cpp" "src/web_ver.cpp" "src/game.
 target_link_libraries("PiAA-Project_3-Game" game_lib)
 target_include_directories("PiAA-Project_3-Game" PRIVATE "/src/")
 target_include_directories("PiAA-Project_3-Game" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/")
+target_include_directories("PiAA-Project_3-Game" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/external/img/")
 
 # Set the path to the SFML directory
 set(SFML_DIR "C:/Users/tompi/documents/SFML-2.6.1/lib/cmake/SFML/")
