@@ -1,7 +1,7 @@
 #include "game.hpp"
 
 Game::Game(bool backJump, bool mandJump, int noStartRows) {
-	currentState = new Board(backJump, mandJump, noStartRows);
+	board = new Board(backJump, mandJump, noStartRows);
 	start();
 }
 
@@ -11,13 +11,13 @@ void Game::start() {
 }
 
 void Game::restart() {
-	currentState->reset();
+	board->reset();
 	start();
 }
 
-void Game::playTurn(int startRow, int startCol, int endRow, int endCol) {
-	if (gameOver) return;
-	if (currentState->movePiece(startRow, startCol, endRow, endCol)) {
+Board* Game::playTurn(int startRow, int startCol, int endRow, int endCol) {
+	if (gameOver) return nullptr;
+	if (board->movePiece(startRow, startCol, endRow, endCol)) {
 			currentPlayer = !currentPlayer;
 	}
 }
@@ -28,7 +28,7 @@ bool Game::isGameOver() {
 }
 
 Board Game::getCurrentState() const {
-	return *currentState;
+	return *board;
 }
 
 void Game::saveGame(std::string path) const {

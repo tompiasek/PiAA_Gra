@@ -67,16 +67,41 @@ void Board::reset() {
 }
 
 bool Board::movePiece(int startRow, int startCol, int endRow, int endCol) {
+	if (mandatoryJump) {
+		if (!isJump(startRow, startCol, endRow, endCol)) {
+			std::vector<std::pair<std::pair<int, int>, std::pair<int, int>>> jumps = allAvailableJumps(board[startRow][startCol]->getColor());
+			if (jumps.size() > 1) {
+				std::cerr << "Mandatory jump! [movePiece()]\n";
+				std::cout << "Available jumps:\n";
+				for (const auto& jump : jumps) {
+					std::cout << "[" << jump.first.first << ", " << jump.first.second << "] -> [" << jump.second.first << ", " << jump.second.second << "]\n";
+				}
+				return false;
+			}
+			else if (jumps.size() == 1) {
+				std::cerr << "Mandatory jump! [movePiece()]\n";
+				std::cout << "Available jump: [" << jumps[0].first.first << ", " << jumps[0].first.second << "] -> [" << jumps[0].second.first << ", " << jumps[0].second.second << "]\n";
+				return false;
+			}
+		}
+	}
+
+	std::vector<std::pair<int, int>> validMoves = getValidMoves(startRow, startCol);
+	bool valid = false;
+	for (const auto& move : validMoves) {
+		if (move.first == endRow || move.second == endCol) {
+			valid = true;
+		}
+	}
+	if (!valid) {
+		std::cerr << "Invalid move! [movePiece()]\n";
+		return false;
+	}
+
 	if (isJump(startRow, startCol, endRow, endCol)) {
 		jumpPiece(startRow, startCol, endRow, endCol);
 	}
-	else {
-		if (!isValidMove(startRow, startCol, endRow, endCol)) {
-			std::cerr << "Invalid move! [movePiece()]\n";
-			return false;
-		}
-		return move(startRow, startCol, endRow, endCol);
-	}
+	else return move(startRow, startCol, endRow, endCol);
 }
 
 bool Board::jumpPiece(int startRow, int startCol, int endRow, int endCol) {
@@ -141,11 +166,15 @@ std::vector<std::pair<int, int>> Board::getValidMoves(int row, int col) const {
 
 			if (board[jumpRow][jumpCol]->getType() == EMPTY) {
 				validMoves.push_back(std::make_pair(jumpRow, jumpCol));
+				std::cout << "Valid jump: (" << jumpRow << ", " << jumpCol << ")\n";
 				jumped = true;
 			}
 		}
 	}
-	if (jumped) return validMoves;
+	if (jumped && mandatoryJump) {
+		std::cout << "Mandatory jump! Returning just jumps.\n";
+		return validMoves;
+	}
 
 	// Check for moves
 	for (int i = 0; i < 2; i++) {
@@ -157,6 +186,7 @@ std::vector<std::pair<int, int>> Board::getValidMoves(int row, int col) const {
 
 		if (board[newRow][newCol]->getType() == EMPTY) {
 			validMoves.push_back(std::make_pair(newRow, newCol));
+			std::cout << "Valid move: (" << newRow << ", " << newCol << ")\n";
 		}
 	}
 
@@ -177,6 +207,71 @@ Piece* Board::getPiece(int row, int col) const {
 	}
 
 	return board[row][col];
+}
+
+std::vector<std::pair<int, int>> Board::getValidJumps(int row, int col) const {
+	std::vector<std::pair<int, int>> validJumps;
+
+	if (!isOccupied(row, col)) {
+		std::cerr << "Field is not occupied! [getValidJumps()]\n";
+		return validJumps;
+	}
+
+	Piece* piece = board[row][col];
+
+	std::vector<std::pair<int, int>> directions;
+	// First two directions are forward and two last are backward for each color (BLACK->UP, WHITE->DOWN)
+	if (piece->getColor() == BLACK) directions = { {-1, 1}, {-1, -1}, {1, 1}, {1, -1} };
+	else directions = { {1, 1}, {1, -1}, {-1, 1}, {-1, -1} };
+	int availableDirections = 2;
+	if (backwardJump) availableDirections = 4;
+
+	// Check for jumps
+	for (int i = 0; i < availableDirections; i++) {
+		auto direction = directions[i];
+		int newRow = row + direction.first;
+		int newCol = col + direction.second;
+
+		if (newRow < 0 || newRow >= BOARD_SIZE || newCol < 0 || newCol >= BOARD_SIZE) continue; // Out of bounds
+
+		if (board[row][col]->getColor() != board[newRow][newCol]->getColor() && board[newRow][newCol]->getColor() != NONE) {
+			int jumpRow = newRow + direction.first;
+			int jumpCol = newCol + direction.second;
+
+			if (jumpRow < 0 || jumpRow >= BOARD_SIZE || jumpCol < 0 || jumpCol >= BOARD_SIZE) continue; // Out of bounds
+
+			if (board[jumpRow][jumpCol]->getType() == EMPTY) {
+				validJumps.push_back(std::make_pair(jumpRow, jumpCol));
+				std::cout << "Valid jump: (" << jumpRow << ", " << jumpCol << ")\n";
+			}
+		}
+	}
+
+	return validJumps;
+}
+
+std::vector<std::pair<std::pair<int, int>, std::pair<int, int>>> Board::allAvailableJumps(int player) const {
+	if (player != WHITE && player != BLACK) {
+		std::cerr << "Invalid player! [allAvailableJumps()]\n";
+		return std::vector<std::pair<std::pair<int, int>, std::pair<int, int>>>();
+	}
+
+	std::vector<std::pair<std::pair<int, int>, std::pair<int, int>>> jumps;
+
+	for (int i = 0; i < BOARD_SIZE; i++) {
+		for (int j = 0; j < BOARD_SIZE; j++) {
+			if (board[i][j]->getColor() == player) {
+				std::vector<std::pair<int, int>> validMoves = getValidMoves(i, j);
+				for (const auto& move : validMoves) {
+					if (isJump(i, j, move.first, move.second)) {
+						jumps.push_back(std::make_pair(std::make_pair(i, j), std::make_pair(move.first, move.second)));
+					}
+				}
+			}
+		}
+	}
+
+	return jumps;
 }
 
 bool Board::isValidMove(int startRow, int startCol, int endRow, int endCol) const {

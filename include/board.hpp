@@ -23,13 +23,15 @@ public:
 	bool movePiece(int startRow, int startCol, int endRow, int endCol);
 	bool jumpPiece(int startRow, int startCol, int endRow, int endCol);
 	bool isOccupied(int row, int col) const;
+	bool isJump(int startRow, int startCol, int endRow, int endCol) const;
 
 	Piece* getPiece(int row, int col) const;
 	std::vector<std::pair<int, int>> getValidMoves(int row, int col) const;
+	std::vector<std::pair<int, int>> getValidJumps(int row, int col) const;
+	std::vector<std::pair<std::pair<int, int>, std::pair<int, int>>> allAvailableJumps(int player) const;
 
 private:
-	bool isValidMove(int startRow, int startCol, int endRow, int endCol) const;
-	bool isJump(int startRow, int startCol, int endRow, int endCol) const;
+	bool isValidMove(int startRow, int startCol, int endRow, int endCol) const; // Consider deleting (use getValidMoves instead)
 	bool move(int startRow, int startCol, int endRow, int endCol);
 };
 

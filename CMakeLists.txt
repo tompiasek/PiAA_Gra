@@ -14,8 +14,13 @@ set(CMAKE_CXX_STANDARD 17)
 add_library(game_lib "src/game.cpp" "src/board.cpp" "src/piece.cpp")
 target_include_directories(game_lib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/")
 
-add_executable("PiAA-Project_3-Game" "src/main.cpp" "src/web_ver.cpp" "src/game.cpp" "src/board.cpp" "src/piece.cpp")
+add_library(interface_lib "src/startScreen.cpp" "src/gameScreen.cpp" "src/settingsScreen.cpp")
+target_include_directories(interface_lib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/interface/")
+target_include_directories(interface_lib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/")
+
+add_executable("PiAA-Project_3-Game" "src/main.cpp" "src/web_ver.cpp" "src/game.cpp" "src/board.cpp" "src/piece.cpp" "src/startScreen.cpp" "src/gameScreen.cpp" "src/settingsScreen.cpp")
 target_link_libraries("PiAA-Project_3-Game" game_lib)
+target_link_libraries("PiAA-Project_3-Game" interface_lib)
 target_include_directories("PiAA-Project_3-Game" PRIVATE "/src/")
 target_include_directories("PiAA-Project_3-Game" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/")
 target_include_directories("PiAA-Project_3-Game" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/external/img/")
@@ -34,6 +39,7 @@ include_directories(${SFML_INCLUDE_DIR})
 
 # Link SFML libraries
 target_link_libraries(PiAA-Project_3-Game sfml-graphics sfml-window sfml-system)
+target_link_libraries(interface_lib sfml-graphics sfml-window sfml-system)
 
 # Output some debug information
 message(STATUS "SFML_INCLUDE_DIR: ${SFML_INCLUDE_DIR}")

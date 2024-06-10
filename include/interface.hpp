@@ -6,16 +6,16 @@
 #include <SFML/Window.hpp>
 #include "board.hpp"
 
-const int TILE_SIZE = 80; // Size of each tile on the board
-const int IMG_SIZE = 64; // Size of each piece image
+const int TILE_SIZE_I = 80; // Size of each tile on the board
+const int IMG_SIZE_I = 64; // Size of each piece image
 
 class CheckersGame {
 private:
     sf::RenderWindow window;
     Board board; // Assuming you have the Board class from your question
 
-    sf::Texture whiteTexture, blackTexture, crownTexture;
-    sf::Sprite whitePiece, blackPiece, crown;
+    sf::Texture whiteTexture, blackTexture, wKingTexture, bKingTexture;
+    sf::Sprite whitePiece, blackPiece, whiteKing, blackKing;
 
     bool isWhiteTurn;
     bool pieceSelected;
@@ -25,20 +25,24 @@ private:
     sf::CircleShape selectedPieceHighlight; // Highlight the selected piece
 
 public:
-    CheckersGame() : window(sf::VideoMode(BOARD_SIZE * TILE_SIZE, BOARD_SIZE * TILE_SIZE), "SFML Checkers"), board(true, true, 3), isWhiteTurn(true), pieceSelected(false) {
+    CheckersGame() : window(sf::VideoMode(BOARD_SIZE * TILE_SIZE_I, BOARD_SIZE * TILE_SIZE_I), "SFML Checkers"), board(true, true, 3), isWhiteTurn(true), pieceSelected(false) {
         if (!whiteTexture.loadFromFile("C:/Users/tompi/source/repos/PiAA-Project_3-Game/external/img/piece_white.png")) {
             // Handle error
         }
         if (!blackTexture.loadFromFile("C:/Users/tompi/source/repos/PiAA-Project_3-Game/external/img/piece_black.png")) {
             // Handle error
         }
-        if (!crownTexture.loadFromFile("C:/Users/tompi/source/repos/PiAA-Project_3-Game/external/img/piece_white.png")) {
+        if (!wKingTexture.loadFromFile("C:/Users/tompi/source/repos/PiAA-Project_3-Game/external/img/king_white.png")) {
+            // Handle error
+        }
+        if (!bKingTexture.loadFromFile("C:/Users/tompi/source/repos/PiAA-Project_3-Game/external/img/king_black.png")) {
             // Handle error
         }
 
         whitePiece.setTexture(whiteTexture);
         blackPiece.setTexture(blackTexture);
-        crown.setTexture(crownTexture);
+        whiteKing.setTexture(wKingTexture);
+        blackKing.setTexture(bKingTexture);
 
         run();
     }
@@ -63,11 +67,11 @@ public:
     }
 
     void drawBoard() {
-        sf::RectangleShape tile(sf::Vector2f(TILE_SIZE, TILE_SIZE));
+        sf::RectangleShape tile(sf::Vector2f(TILE_SIZE_I, TILE_SIZE_I));
 
         for (int row = 0; row < BOARD_SIZE; ++row) {
             for (int col = 0; col < BOARD_SIZE; ++col) {
-                tile.setPosition(col * TILE_SIZE, row * TILE_SIZE);
+                tile.setPosition(col * TILE_SIZE_I, row * TILE_SIZE_I);
 
                 if ((row + col) % 2 == 0) {
                     tile.setFillColor(sf::Color::White);
@@ -78,14 +82,15 @@ public:
                 window.draw(tile);
 
                 Piece* piece = board.getPiece(row, col);
+                sf::Sprite sprite;
                 if (piece->getType() == PAWN) {
-                    sf::Sprite sprite = (piece->getColor() == WHITE) ? whitePiece : blackPiece;
-                    sprite.setPosition(col * TILE_SIZE + ((TILE_SIZE - IMG_SIZE) / 2), row * TILE_SIZE + ((TILE_SIZE - IMG_SIZE) / 2));
-                    window.draw(sprite);
+                    sprite = (piece->getColor() == WHITE) ? whitePiece : blackPiece;
+                    sprite.setPosition(col * TILE_SIZE_I + ((TILE_SIZE_I - IMG_SIZE_I) / 2), row * TILE_SIZE_I + ((TILE_SIZE_I - IMG_SIZE_I) / 2));
                 } else if (piece->getType() == KING) {
-                    crown.setPosition(col * TILE_SIZE + ((TILE_SIZE - IMG_SIZE) / 2), row * TILE_SIZE + ((TILE_SIZE - IMG_SIZE) / 2));
-                    window.draw(crown);
+                    sprite = (piece->getColor() == WHITE) ? whiteKing : blackKing;
+                    sprite.setPosition(col * TILE_SIZE_I + ((TILE_SIZE_I - IMG_SIZE_I) / 2), row * TILE_SIZE_I + ((TILE_SIZE_I - IMG_SIZE_I) / 2));
                 }
+                window.draw(sprite);
             }
         }
 
@@ -98,30 +103,45 @@ public:
         if (pieceSelected) {
 			window.draw(selectedPieceHighlight);
             Piece* piece = board.getPiece(selectedPiecePosition.x, selectedPiecePosition.y);
-            sf::Sprite sprite = (piece->getColor() == WHITE) ? whitePiece : blackPiece;
-            sprite.setPosition(selectedPiecePosition.y * TILE_SIZE + ((TILE_SIZE - IMG_SIZE) / 2), selectedPiecePosition.x * TILE_SIZE + ((TILE_SIZE - IMG_SIZE) / 2));
+
+            sf::Sprite sprite;
+            if (piece->getType() == PAWN) {
+                sprite = (piece->getColor() == WHITE) ? whitePiece : blackPiece;
+                sprite.setPosition(selectedPiecePosition.y * TILE_SIZE_I + ((TILE_SIZE_I - IMG_SIZE_I) / 2), selectedPiecePosition.x * TILE_SIZE_I + ((TILE_SIZE_I - IMG_SIZE_I) / 2));
+            } else if (piece->getType() == KING) {
+                sprite = (piece->getColor() == WHITE) ? whiteKing : blackKing;
+                sprite.setPosition(selectedPiecePosition.y * TILE_SIZE_I + ((TILE_SIZE_I - IMG_SIZE_I) / 2), selectedPiecePosition.x * TILE_SIZE_I + ((TILE_SIZE_I - IMG_SIZE_I) / 2));
+            }
             window.draw(sprite);
 		}
     }
 
     void handleMouseClick(int mouseX, int mouseY) {
-        int row = mouseY / TILE_SIZE;
-        int col = mouseX / TILE_SIZE;
+        int row = mouseY / TILE_SIZE_I; 
+        int col = mouseX / TILE_SIZE_I;
 
         // If no piece is selected and the clicked tile has a piece of the current player's color
         if (!pieceSelected && board.getPiece(row, col)->getColor() == (isWhiteTurn ? WHITE : BLACK)) {
             pieceSelected = true;
             selectedPiecePosition = sf::Vector2i(row, col);
-            selectedPieceHighlight.setRadius(IMG_SIZE / 2 + 6);
+            selectedPieceHighlight.setRadius(IMG_SIZE_I / 2 + 6);
             selectedPieceHighlight.setFillColor(sf::Color(255, 255, 0));
-            selectedPieceHighlight.setOrigin(IMG_SIZE / 2 + 6, IMG_SIZE / 2 + 6);
-            selectedPieceHighlight.setPosition(col * TILE_SIZE + TILE_SIZE / 2, row * TILE_SIZE + TILE_SIZE / 2);
-            std::vector<std::pair<int, int>> validMoves = board.getValidMoves(row, col);
+            selectedPieceHighlight.setOrigin(IMG_SIZE_I / 2 + 6, IMG_SIZE_I / 2 + 6);
+            selectedPieceHighlight.setPosition(col * TILE_SIZE_I + TILE_SIZE_I / 2, row * TILE_SIZE_I + TILE_SIZE_I / 2);
+            std::vector<std::pair<int, int>> validMoves;
+            // Check if there are any jumps available
+            if(board.allAvailableJumps(board.getPiece(row, col)->getColor()).size() == 0) validMoves = board.getValidMoves(row, col);
+			else {
+                // If there are jumps available, only show the jumps
+                if(board.getValidJumps(row, col).size() == 0) return;
+                validMoves = board.getValidJumps(row, col);
+            }
+
             for (const auto& move : validMoves) {
                 int endRow = move.first;
                 int endCol = move.second;
-                sf::RectangleShape validMoveTile(sf::Vector2f(TILE_SIZE, TILE_SIZE));
-                validMoveTile.setPosition(endCol * TILE_SIZE, endRow * TILE_SIZE);
+                sf::RectangleShape validMoveTile(sf::Vector2f(TILE_SIZE_I, TILE_SIZE_I));
+                validMoveTile.setPosition(endCol * TILE_SIZE_I, endRow * TILE_SIZE_I);
                 validMoveTile.setFillColor(sf::Color(0, 255, 0, 128)); // Semi-transparent green
                 validMoveTiles.push_back(validMoveTile); // Add the valid move tile to the vector
             }
@@ -132,10 +152,33 @@ public:
             int endRow = row;
             int endCol = col;
 
-            if (board.movePiece(startRow, startCol, endRow, endCol)) {
-                // Move successful, switch turns
-                isWhiteTurn = !isWhiteTurn;
+            bool moveSuccess = false;
+            if (board.isJump(startRow, startCol, endRow, endCol)) {
+                moveSuccess = board.movePiece(startRow, startCol, endRow, endCol);
+                // If a jump was made, check if there are more jumps available
+                if (moveSuccess && board.getValidJumps(endRow, endCol).size() > 0) {
+					// If there are more jumps available, keep the piece selected
+					pieceSelected = true;
+					selectedPiecePosition = sf::Vector2i(endRow, endCol);
+					selectedPieceHighlight.setPosition(endCol * TILE_SIZE_I + TILE_SIZE_I / 2, endRow * TILE_SIZE_I + TILE_SIZE_I / 2);
+					validMoveTiles.clear(); // Clear the valid move tiles vector
+                    for (const auto& move : board.getValidJumps(endRow, endCol)) {
+						int jumpEndRow = move.first;
+						int jumpEndCol = move.second;
+						sf::RectangleShape validMoveTile(sf::Vector2f(TILE_SIZE_I, TILE_SIZE_I));
+						validMoveTile.setPosition(jumpEndCol * TILE_SIZE_I, jumpEndRow * TILE_SIZE_I);
+						validMoveTile.setFillColor(sf::Color(0, 255, 0, 128)); // Semi-transparent green
+						validMoveTiles.push_back(validMoveTile); // Add the valid move tile to the vector
+					}
+                }
+                else {
+					// If there are no more jumps available, switch turns
+					isWhiteTurn = !isWhiteTurn;
+				}
             }
+            else {
+				if (board.movePiece(startRow, startCol, endRow, endCol)) isWhiteTurn = !isWhiteTurn;
+			}
 
             // Reset selection state
             pieceSelected = false;
