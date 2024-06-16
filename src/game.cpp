@@ -1,7 +1,9 @@
 #include "game.hpp"
+#include "algorithm.hpp"
 
-Game::Game(bool backJump, bool mandJump, int noStartRows) {
+Game::Game(bool backJump, bool mandJump, int noStartRows, bool turn) {
 	board = new Board(backJump, mandJump, noStartRows);
+	currentPlayer = turn;
 	start();
 }
 
@@ -18,8 +20,21 @@ void Game::restart() {
 Board* Game::playTurn(int startRow, int startCol, int endRow, int endCol) {
 	if (gameOver) return nullptr;
 	if (board->movePiece(startRow, startCol, endRow, endCol)) {
-			currentPlayer = !currentPlayer;
+			switchTurn();
 	}
+	else {
+		std::cerr << "Invalid move" << std::endl;
+		return nullptr;
+	}
+	return board;
+}
+
+void Game::switchTurn() {
+	currentPlayer = !currentPlayer;
+}
+
+bool Game::getTurn() const {
+	return currentPlayer;
 }
 
 // TO-DO
@@ -31,11 +46,23 @@ Board Game::getCurrentState() const {
 	return *board;
 }
 
+void Game::setCurrentState(Board* b) {
+	board = b;
+}
+
 void Game::saveGame(std::string path) const {
 	return;
 }
 
 void Game::loadGame(std::string path) {
 	return;
+}
+
+Board* Game::aiMove(Board b) {
+	//board = b;
+    std::pair<int, Board> bestMove = minimax(std::pair<int,int>(-1, -1), 5, true, this);
+    board = new Board(bestMove.second);
+    switchTurn();
+    return board;
 }
 

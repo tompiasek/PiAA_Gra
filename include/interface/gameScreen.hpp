@@ -1,20 +1,21 @@
+#pragma once
 #ifndef GAME_SCREEN_HPP_
 #define GAME_SCREEN_HPP_
 
 #include "cScreen.hpp"
-#include "board.hpp"
+#include "game.hpp"
+#include "algorithm.hpp"
 
 const int TILE_SIZE = 80; // Size of each tile on the board
 const int IMG_SIZE = 64; // Size of each piece image
 
 class GameScreen : public cScreen {
 private:
-    Board board;
+	Game game;
 
     sf::Texture whiteTexture, blackTexture, wKingTexture, bKingTexture;
     sf::Sprite whitePiece, blackPiece, whiteKing, blackKing;
 
-    bool isWhiteTurn;
     bool pieceSelected;
     sf::Vector2i selectedPiecePosition;
 
@@ -22,7 +23,7 @@ private:
     sf::CircleShape selectedPieceHighlight; // Highlight the selected piece
 
 public:
-	GameScreen(void) : board(true, true, 3), isWhiteTurn(true), pieceSelected(false) {
+	GameScreen(void) : game(true, true, 3), pieceSelected(false) {
 
 		if (!whiteTexture.loadFromFile("C:/Users/tompi/source/repos/PiAA-Project_3-Game/external/img/piece_white.png")) {
 			std::cerr << "Error loading image\n";

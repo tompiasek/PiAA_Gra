@@ -13,6 +13,11 @@ class Board {
 	int noStartRows = 3;
 	
 public:
+	int whitePieces = 12;
+	int blackPieces = 12;
+	int whiteKings = 0;
+	int blackKings = 0;
+
 	Board(bool backJump = false, bool mandJump = false, int noStartRows = 3);
 
 	void display() const;
@@ -28,7 +33,10 @@ public:
 	Piece* getPiece(int row, int col) const;
 	std::vector<std::pair<int, int>> getValidMoves(int row, int col) const;
 	std::vector<std::pair<int, int>> getValidJumps(int row, int col) const;
+	std::vector<std::pair<std::pair<int, int>, std::pair<int, int>>> allAvailableMoves(int player) const;
 	std::vector<std::pair<std::pair<int, int>, std::pair<int, int>>> allAvailableJumps(int player) const;
+
+	int evaluate() const;
 
 private:
 	bool isValidMove(int startRow, int startCol, int endRow, int endCol) const; // Consider deleting (use getValidMoves instead)
