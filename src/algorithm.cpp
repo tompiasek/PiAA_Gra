@@ -1,11 +1,11 @@
 #include "algorithm.hpp"
 
 
-std::pair<int, Board> minimax(std::pair<int, int> pos, int depth, bool max_player, Game game) {
+std::pair<int, Board*> minimax(std::pair<int, int> pos, int depth, bool max_player, Game game) {
     Board board = game.getCurrentState();
 
     if (depth == 0 || game.isGameOver()) {
-        return std::pair<int, Board>(game.getCurrentState().evaluate(), board);
+        return std::pair<int, Board*>(game.getCurrentState().evaluate(), &board);
     }
 
     int maxEval = INT_MIN, minEval = INT_MAX;
@@ -36,8 +36,8 @@ std::pair<int, Board> minimax(std::pair<int, int> pos, int depth, bool max_playe
     }
 
     if (max_player) {
-        return std::pair<int, Board>(maxEval, board);
+        return std::pair<int, Board*>(maxEval, &board);
     } else {
-        return std::pair<int, Board>(minEval, board);
+        return std::pair<int, Board*>(minEval, &board);
     }
 }
