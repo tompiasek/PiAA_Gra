@@ -3,10 +3,10 @@
 #include <iostream>
 
 std::pair<int, Board> minimax(std::pair<int, int> pos, int depth, bool max_player, Game game) {
-    Board board = game.getCurrentState();
+    Board board = Board(*game.getCurrentState());
 
     if (depth == 0 || game.isGameOver()) {
-        return std::make_pair(game.getCurrentState().evaluate(), board);
+        return std::make_pair((*game.getCurrentState()).evaluate(), board);
     }
 
     int maxEval = INT_MIN, minEval = INT_MAX;
@@ -22,7 +22,7 @@ std::pair<int, Board> minimax(std::pair<int, int> pos, int depth, bool max_playe
             int eval = minimax(std::make_pair(move.second.first, move.second.second), depth - 1, false, newGame).first;
             if (eval > maxEval) {
                 maxEval = eval;
-                bestBoard = newGame.getCurrentState();
+                bestBoard = Board(*newGame.getCurrentState());
             }
         }
         return std::make_pair(maxEval, bestBoard);
@@ -36,7 +36,7 @@ std::pair<int, Board> minimax(std::pair<int, int> pos, int depth, bool max_playe
             int eval = minimax(std::make_pair(move.second.first, move.second.second), depth - 1, true, newGame).first;
             if (eval < minEval) {
                 minEval = eval;
-                bestBoard = newGame.getCurrentState();
+                bestBoard = Board(*newGame.getCurrentState());
             }
         }
         return std::make_pair(minEval, bestBoard);

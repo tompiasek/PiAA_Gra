@@ -19,16 +19,16 @@ private:
 	std::vector<Move> moves;
 
 public:
-
 	Game(bool backJump = false, bool mandJump = false, int noStartRows = 3, bool turn = true);
 	Game(const Game& g);
+	~Game();
 	void start();
 	void restart();
 	Board* playTurn(int startRow, int startCol, int endRow, int endCol);
 	void switchTurn();
 	bool getTurn() const;
 	bool isGameOver();
-	Board getCurrentState() const;
+	Board* getCurrentState() const;
 	void setCurrentState(Board* b);
 	void saveGame(std::string path) const;
 	void loadGame(std::string path);

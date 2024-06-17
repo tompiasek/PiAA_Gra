@@ -70,6 +70,7 @@ void Board::display() const {
 void Board::reset() {
 	for (int i = 0; i < BOARD_SIZE; i++) {
 		for (int j = 0; j < BOARD_SIZE; j++) {
+			delete(board[i][j]);
 			board[i][j] = new Piece(EMPTY);
 		}
 	}
@@ -144,7 +145,7 @@ bool Board::jumpPiece(int startRow, int startCol, int endRow, int endCol) {
 	board[endRow][endCol]->setColor(board[startRow][startCol]->getColor());
 	board[endRow][endCol]->setType(board[startRow][startCol]->getType());
 
-	if ((endRow == 0 && board[endRow][endCol]->getColor() == BLACK) || (endRow == BOARD_SIZE - 1 && board[endRow][endCol]->getColor() == WHITE)) {
+	if ((endRow == 0 && board[endRow][endCol]->isKing() && board[endRow][endCol]->getColor() == BLACK) || (endRow == BOARD_SIZE - 1 && board[endRow][endCol]->getColor() == WHITE)) {
 		board[endRow][endCol]->promote();
 		std::cout << "Promoted!\n";
 	}
@@ -184,33 +185,16 @@ std::vector<std::pair<int, int>> Board::getValidMoves(int row, int col) const {
 	for (const auto& jump : validJumps) {
 		validMoves.push_back(jump);
 	}
-	//for (int i = 0; i < availableDirections; i++) {
-	//	auto direction = directions[i];
-	//	int newRow = row + direction.first;
-	//	int newCol = col + direction.second;
 
-	//	if (newRow < 0 || newRow >= BOARD_SIZE || newCol < 0 || newCol >= BOARD_SIZE) continue; // Out of bounds
-
-	//	if (board[row][col]->getColor() != board[newRow][newCol]->getColor() && board[newRow][newCol]->getColor() != NONE) {
-	//		int jumpRow = newRow + direction.first;
-	//		int jumpCol = newCol + direction.second;
-
-	//		if (jumpRow < 0 || jumpRow >= BOARD_SIZE || jumpCol < 0 || jumpCol >= BOARD_SIZE) continue; // Out of bounds
-
-	//		if (board[jumpRow][jumpCol]->getType() == EMPTY) {
-	//			validMoves.push_back(std::make_pair(jumpRow, jumpCol));
-	//			std::cout << "Valid jump: (" << jumpRow << ", " << jumpCol << ")\n";
-	//			jumped = true;
-	//		}
-	//	}
-	//}
 	if (jumped && mandatoryJump) {
 		std::cout << "Mandatory jump! Returning just jumps.\n";
 		return validMoves;
 	}
 
+	piece->isKing() ? availableDirections = 4 : availableDirections = 2;
+
 	// Check for moves
-	for (int i = 0; i < 2; i++) {
+	for (int i = 0; i < availableDirections; i++) {
 		auto direction = directions[i];
 		int newRow = row + direction.first;
 		int newCol = col + direction.second;
@@ -307,7 +291,7 @@ std::vector<std::pair<int, int>> Board::getValidJumps(int row, int col) const {
 			}
 		}
 	}
-	
+
 	return validJumps;
 }
 

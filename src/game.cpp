@@ -14,6 +14,10 @@ Game::Game(const Game& g) {
 	this->moves = g.moves;
 }
 
+Game::~Game() {
+	delete board;
+}
+
 void Game::start() {
 	gameOver = 0;
 	currentPlayer = WHITE - 1;
@@ -49,8 +53,8 @@ bool Game::isGameOver() {
 	return gameOver;
 }
 
-Board Game::getCurrentState() const {
-	return *board;
+Board* Game::getCurrentState() const {
+	return board;
 }
 
 void Game::setCurrentState(Board* b) {
@@ -66,9 +70,11 @@ void Game::loadGame(std::string path) {
 }
 
 Board* Game::aiMove(Board* b) {
-	board = b;
-    std::pair<int, Board> bestMove = minimax(std::pair<int,int>(-1, -1), 3, true, *this);
-    board = new Board(bestMove.second);
+	this->board = b;
+
+    std::pair<int, Board> bestMove = minimax(std::pair<int,int>(-1, -1), 2, true, *this);
+
+    this->board = new Board(bestMove.second);
     switchTurn();
     return board;
 }

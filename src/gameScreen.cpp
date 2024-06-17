@@ -14,9 +14,9 @@ int GameScreen::Run(sf::RenderWindow &App) {
 		}
         if (!game.getTurn()) {
                 // AI's turn
-                Board* aiBoard = game.aiMove(&(game.getCurrentState()));
+                Board* aiBoard = this->game.aiMove(this->game.getCurrentState());
                 if (aiBoard != nullptr) {
-                    game.setCurrentState(aiBoard);
+                    this->game.setCurrentState(aiBoard);
                 }
             }
 
@@ -53,7 +53,7 @@ void GameScreen::drawBoard(sf::RenderWindow &App) {
 
             App.draw(tile);
 
-            Piece* piece = (game.getCurrentState()).getPiece(row, col);
+            Piece* piece = (this->game.getCurrentState())->getPiece(row, col);
             sf::Sprite sprite;
             if (piece->getType() == PAWN) {
                 sprite = (piece->getColor() == WHITE) ? whitePiece : blackPiece;
@@ -74,7 +74,7 @@ void GameScreen::drawBoard(sf::RenderWindow &App) {
     // Draw the selected piece highlight
     if (pieceSelected) {
 		App.draw(selectedPieceHighlight);
-        Piece* piece = (game.getCurrentState()).getPiece(selectedPiecePosition.x, selectedPiecePosition.y);
+        Piece* piece = (game.getCurrentState())->getPiece(selectedPiecePosition.x, selectedPiecePosition.y);
 
         sf::Sprite sprite;
         if (piece->getType() == PAWN) {
@@ -93,7 +93,7 @@ void GameScreen::handleMouseClick(int mouseX, int mouseY) {
     int col = mouseX / TILE_SIZE;
 
     // If no piece is selected and the clicked tile has a piece of the current player's color
-    if (!pieceSelected && (game.getCurrentState()).getPiece(row, col)->getColor() == (game.getTurn() ? WHITE : BLACK)) {
+    if (!pieceSelected && (game.getCurrentState())->getPiece(row, col)->getColor() == (game.getTurn() ? WHITE : BLACK)) {
         pieceSelected = true;
         selectedPiecePosition = sf::Vector2i(row, col);
         selectedPieceHighlight.setRadius(IMG_SIZE / 2 + 6);
@@ -102,11 +102,11 @@ void GameScreen::handleMouseClick(int mouseX, int mouseY) {
         selectedPieceHighlight.setPosition(col * TILE_SIZE + TILE_SIZE / 2, row * TILE_SIZE + TILE_SIZE / 2);
         std::vector<std::pair<int, int>> validMoves;
         // Check if there are any jumps available
-        if(game.getCurrentState().allAvailableJumps(game.getCurrentState().getPiece(row, col)->getColor()).size() == 0) validMoves = game.getCurrentState().getValidMoves(row, col);
+        if(game.getCurrentState()->allAvailableJumps(game.getCurrentState()->getPiece(row, col)->getColor()).size() == 0) validMoves = game.getCurrentState()->getValidMoves(row, col);
 		else {
             // If there are jumps available, only show the jumps
-            if(game.getCurrentState().getValidJumps(row, col).size() == 0) return;
-            validMoves = game.getCurrentState().getValidJumps(row, col);
+            if(game.getCurrentState()->getValidJumps(row, col).size() == 0) return;
+            validMoves = game.getCurrentState()->getValidJumps(row, col);
         }
 
         for (const auto& move : validMoves) {
@@ -125,17 +125,17 @@ void GameScreen::handleMouseClick(int mouseX, int mouseY) {
         int endCol = col;
 
         bool moveSuccess = false;
-        if (game.getCurrentState().isJump(startRow, startCol, endRow, endCol)) {
+        if (game.getCurrentState()->isJump(startRow, startCol, endRow, endCol)) {
             moveSuccess = this->game.board->movePiece(startRow, startCol, endRow, endCol);
             // If a jump was made, check if there are more jumps available
-            if (moveSuccess && !game.getCurrentState().getPiece(endRow, endCol)->isKing()) {
-                if(game.getCurrentState().getValidJumps(endRow, endCol).size() > 0) {
+            if (moveSuccess && !this->game.getCurrentState()->getPiece(endRow, endCol)->isKing()) {
+                if(game.getCurrentState()->getValidJumps(endRow, endCol).size() > 0) {
 				    // If there are more jumps available, keep the piece selected
 				    pieceSelected = true;
 				    selectedPiecePosition = sf::Vector2i(endRow, endCol);
 				    selectedPieceHighlight.setPosition(endCol * TILE_SIZE + TILE_SIZE / 2, endRow * TILE_SIZE + TILE_SIZE / 2);
 				    validMoveTiles.clear(); // Clear the valid move tiles vector
-                    for (const auto& move : game.getCurrentState().getValidJumps(endRow, endCol)) {
+                    for (const auto& move : this->game.getCurrentState()->getValidJumps(endRow, endCol)) {
 					    int jumpEndRow = move.first;
 					    int jumpEndCol = move.second;
 					    sf::RectangleShape validMoveTile(sf::Vector2f(TILE_SIZE, TILE_SIZE));
@@ -154,9 +154,15 @@ void GameScreen::handleMouseClick(int mouseX, int mouseY) {
 			}
         }
         else {
+            std::cout << "Board before player move: " << std::endl;
+            this->game.getCurrentState()->display();
+            std::cout << std::endl;
 			if (this->game.board->movePiece(startRow, startCol, endRow, endCol)) {
                 game.switchTurn();
             }
+            std::cout << "Board after player move: " << std::endl;
+            this->game.getCurrentState()->display();
+            std::cout << std::endl;
 		}
 
         // Reset selection state
