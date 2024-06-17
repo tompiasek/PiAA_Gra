@@ -5,6 +5,7 @@
 #include <thread>
 
 #include "game.hpp"
+#include "interface.hpp"
 #include "screens.hpp"
 
 using namespace std;

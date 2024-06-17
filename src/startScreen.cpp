@@ -20,7 +20,7 @@ int StartScreen::Run(sf::RenderWindow& App) {
 
 	if (!texture.loadFromFile("C:/Users/tompi/documents/SFML-2.6.1/data/img/background.png"))
 	{
-		std::cerr << "Error loading background" << std::endl;
+		std::cerr << "Error loading presentation.gif" << std::endl;
 		return (-1);
 	}
 	sprite.setTexture(texture);

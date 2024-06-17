@@ -11,7 +11,7 @@ const int IMG_SIZE = 64; // Size of each piece image
 
 class GameScreen : public cScreen {
 private:
-	Game* game;
+	Game game;
 
     sf::Texture whiteTexture, blackTexture, wKingTexture, bKingTexture;
     sf::Sprite whitePiece, blackPiece, whiteKing, blackKing;
@@ -23,9 +23,7 @@ private:
     sf::CircleShape selectedPieceHighlight; // Highlight the selected piece
 
 public:
-	GameScreen(void) : pieceSelected(false) {
-
-		game = new Game(true, true, 3);
+	GameScreen(void) : game(true, true, 3), pieceSelected(false) {
 
 		if (!whiteTexture.loadFromFile("C:/Users/tompi/source/repos/PiAA-Project_3-Game/external/img/piece_white.png")) {
 			std::cerr << "Error loading image\n";

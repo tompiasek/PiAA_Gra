@@ -4,7 +4,7 @@
 
 #include "game.hpp"
 
-std::pair<int, Board*> minimax(std::pair<int,int> pos, int depth, bool max_player, Game game);
+std::pair<int, Board> minimax(std::pair<int,int> pos, int depth, bool max_player, Game game);
 
 
 //if (max_player) {

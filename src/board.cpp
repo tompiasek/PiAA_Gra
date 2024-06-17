@@ -167,7 +167,26 @@ std::vector<std::pair<int, int>> Board::getValidMoves(int row, int col) const {
 	for (const auto& jump : validJumps) {
 		validMoves.push_back(jump);
 	}
+	//for (int i = 0; i < availableDirections; i++) {
+	//	auto direction = directions[i];
+	//	int newRow = row + direction.first;
+	//	int newCol = col + direction.second;
 
+	//	if (newRow < 0 || newRow >= BOARD_SIZE || newCol < 0 || newCol >= BOARD_SIZE) continue; // Out of bounds
+
+	//	if (board[row][col]->getColor() != board[newRow][newCol]->getColor() && board[newRow][newCol]->getColor() != NONE) {
+	//		int jumpRow = newRow + direction.first;
+	//		int jumpCol = newCol + direction.second;
+
+	//		if (jumpRow < 0 || jumpRow >= BOARD_SIZE || jumpCol < 0 || jumpCol >= BOARD_SIZE) continue; // Out of bounds
+
+	//		if (board[jumpRow][jumpCol]->getType() == EMPTY) {
+	//			validMoves.push_back(std::make_pair(jumpRow, jumpCol));
+	//			std::cout << "Valid jump: (" << jumpRow << ", " << jumpCol << ")\n";
+	//			jumped = true;
+	//		}
+	//	}
+	//}
 	if (jumped && mandatoryJump) {
 		std::cout << "Mandatory jump! Returning just jumps.\n";
 		return validMoves;

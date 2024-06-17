@@ -43,7 +43,7 @@ bool Game::isGameOver() {
 }
 
 Board Game::getCurrentState() const {
-	return board;
+	return *board;
 }
 
 void Game::setCurrentState(Board* b) {
@@ -60,7 +60,7 @@ void Game::loadGame(std::string path) {
 
 Board* Game::aiMove(Board b) {
 	//board = b;
-    std::pair<int, Board> bestMove = minimax(std::pair<int,int>(-1, -1), 5, true, &b);
+    std::pair<int, Board> bestMove = minimax(std::pair<int,int>(-1, -1), 5, true, this);
     board = new Board(bestMove.second);
     switchTurn();
     return board;
