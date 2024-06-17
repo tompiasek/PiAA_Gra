@@ -1,5 +1,6 @@
 #include "gameScreen.hpp"
 #include <conio.h>
+#include <chrono>
 
 int GameScreen::Run(sf::RenderWindow &App) {
     App.clear(sf::Color::White);
@@ -10,15 +11,20 @@ int GameScreen::Run(sf::RenderWindow &App) {
 	bool running = true;
     while (running) {
         if (game.isGameOver()) {
+            std::cout << "Game over!\n";
 			return -1;
 		}
         if (!game.getTurn()) {
-                // AI's turn
-                Board* aiBoard = this->game.aiMove(this->game.getCurrentState());
-                if (aiBoard != nullptr) {
-                    this->game.setCurrentState(aiBoard);
-                }
+            // AI's turn
+            auto start = std::chrono::high_resolution_clock::now();
+            Board* aiBoard = this->game.aiMove(this->game.getCurrentState());
+            auto end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> elapsed = end - start;
+            std::cout << "AI's turn took " << elapsed.count() << " seconds\n";
+            if (aiBoard != nullptr) {
+                this->game.setCurrentState(aiBoard);
             }
+        }
 
         sf::Event event;
         while (App.pollEvent(event)) {
@@ -154,15 +160,7 @@ void GameScreen::handleMouseClick(int mouseX, int mouseY) {
 			}
         }
         else {
-            std::cout << "Board before player move: " << std::endl;
-            this->game.getCurrentState()->display();
-            std::cout << std::endl;
-			if (this->game.board->movePiece(startRow, startCol, endRow, endCol)) {
-                game.switchTurn();
-            }
-            std::cout << "Board after player move: " << std::endl;
-            this->game.getCurrentState()->display();
-            std::cout << std::endl;
+			if (this->game.board->movePiece(startRow, startCol, endRow, endCol)) game.switchTurn();
 		}
 
         // Reset selection state

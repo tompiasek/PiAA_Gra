@@ -101,7 +101,6 @@ bool Board::movePiece(int startRow, int startCol, int endRow, int endCol) {
 			}
 			else if (jumps.size() == 1) {
 				std::cerr << "Mandatory jump! [movePiece()]\n";
-				std::cout << "Available jump: [" << jumps[0].first.first << ", " << jumps[0].first.second << "] -> [" << jumps[0].second.first << ", " << jumps[0].second.second << "]\n";
 				return false;
 			}
 		}
@@ -119,9 +118,7 @@ bool Board::movePiece(int startRow, int startCol, int endRow, int endCol) {
 		return false;
 	}
 
-	if (isJump(startRow, startCol, endRow, endCol)) {
-		jumpPiece(startRow, startCol, endRow, endCol);
-	}
+	if (isJump(startRow, startCol, endRow, endCol)) jumpPiece(startRow, startCol, endRow, endCol);
 	else return move(startRow, startCol, endRow, endCol);
 }
 
@@ -131,23 +128,39 @@ bool Board::jumpPiece(int startRow, int startCol, int endRow, int endCol) {
 		return false;
 	}
 
-	int jumpRow = (startRow + endRow) / 2;
-	int jumpCol = (startCol + endCol) / 2;
+	if (!board[startRow][startCol]->isKing()) {
+		int jumpRow = (startRow + endRow) / 2;
+		int jumpCol = (startCol + endCol) / 2;
 
-	if (board[jumpRow][jumpCol]->isKing()) {
-		board[jumpRow][jumpCol]->getColor() == WHITE ? whiteKings-- : blackKings--;
-	}
+		if (board[jumpRow][jumpCol]->isKing()) {
+			board[jumpRow][jumpCol]->getColor() == WHITE ? whiteKings-- : blackKings--;
+		}
 	
 
-	board[jumpRow][jumpCol]->setType(EMPTY);
-	board[jumpRow][jumpCol]->setColor(NONE);
+		board[jumpRow][jumpCol]->setType(EMPTY);
+		board[jumpRow][jumpCol]->setColor(NONE);
 
-	board[endRow][endCol]->setColor(board[startRow][startCol]->getColor());
-	board[endRow][endCol]->setType(board[startRow][startCol]->getType());
+		board[endRow][endCol]->setColor(board[startRow][startCol]->getColor());
+		board[endRow][endCol]->setType(board[startRow][startCol]->getType());
 
-	if ((endRow == 0 && board[endRow][endCol]->isKing() && board[endRow][endCol]->getColor() == BLACK) || (endRow == BOARD_SIZE - 1 && board[endRow][endCol]->getColor() == WHITE)) {
-		board[endRow][endCol]->promote();
-		std::cout << "Promoted!\n";
+		if ((endRow == 0 && board[endRow][endCol]->isKing() && board[endRow][endCol]->getColor() == BLACK) || (endRow == BOARD_SIZE - 1 && board[endRow][endCol]->getColor() == WHITE)) {
+			board[endRow][endCol]->promote();
+			std::cout << "Promoted!\n";
+		}
+	}
+	else {
+		int jumpRow = endRow + (((startRow - endRow > 0) ? 1 : -1));
+		int jumpCol = endCol + (((startCol - endCol > 0) ? 1 : -1));
+		
+		if (board[jumpRow][jumpCol]->isKing()) {
+			board[jumpRow][jumpCol]->getColor() == WHITE ? whiteKings-- : blackKings--;
+		}
+	
+		board[jumpRow][jumpCol]->setType(EMPTY);
+		board[jumpRow][jumpCol]->setColor(NONE);
+
+		board[endRow][endCol]->setColor(board[startRow][startCol]->getColor());
+		board[endRow][endCol]->setType(board[startRow][startCol]->getType());
 	}
 
 	board[startRow][startCol]->getColor() == WHITE ? whitePieces-- : blackPieces--;
@@ -191,21 +204,54 @@ std::vector<std::pair<int, int>> Board::getValidMoves(int row, int col) const {
 		return validMoves;
 	}
 
-	piece->isKing() ? availableDirections = 4 : availableDirections = 2;
-
 	// Check for moves
-	for (int i = 0; i < availableDirections; i++) {
-		auto direction = directions[i];
-		int newRow = row + direction.first;
-		int newCol = col + direction.second;
+	if (!piece->isKing()) {
+		for (int i = 0; i < 2; i++) {
+			auto direction = directions[i];
+			int newRow = row + direction.first;
+			int newCol = col + direction.second;
 
-		if (newRow < 0 || newRow >= BOARD_SIZE || newCol < 0 || newCol >= BOARD_SIZE) continue; // Out of bounds
+			if (newRow < 0 || newRow >= BOARD_SIZE || newCol < 0 || newCol >= BOARD_SIZE) continue; // Out of bounds
 
-		if (board[newRow][newCol]->getType() == EMPTY) {
-			validMoves.push_back(std::make_pair(newRow, newCol));
-			std::cout << "Valid move: (" << newRow << ", " << newCol << ")\n";
+			if (board[newRow][newCol]->getType() == EMPTY) {
+				validMoves.push_back(std::make_pair(newRow, newCol));
+				std::cout << "Valid move: (" << newRow << ", " << newCol << ")\n";
+			}
 		}
 	}
+	else {
+		std::cout << "King! [getValidMoves()]\n";
+		for (int i = 0; i < 4; i++) {
+			auto direction = directions[i];
+			int newRow = row + direction.first;
+			int newCol = col + direction.second;
+
+			while (newRow >= 0 && newRow < BOARD_SIZE && newCol >= 0 && newCol < BOARD_SIZE) {
+				if (board[newRow][newCol]->getColor() != NONE) {
+					break;
+				}
+				else {
+					validMoves.push_back(std::make_pair(newRow, newCol));
+					std::cout << "Valid move: (" << newRow << ", " << newCol << ")\n";
+				}
+
+				newRow += direction.first;
+				newCol += direction.second;
+			}
+		}
+	}
+	//for (int i = 0; i < 2; i++) {
+	//	auto direction = directions[i];
+	//	int newRow = row + direction.first;
+	//	int newCol = col + direction.second;
+
+	//	if (newRow < 0 || newRow >= BOARD_SIZE || newCol < 0 || newCol >= BOARD_SIZE) continue; // Out of bounds
+
+	//	if (board[newRow][newCol]->getType() == EMPTY) {
+	//		validMoves.push_back(std::make_pair(newRow, newCol));
+	//		std::cout << "Valid move: (" << newRow << ", " << newCol << ")\n";
+	//	}
+	//}
 
 	return validMoves;
 }
@@ -262,7 +308,6 @@ std::vector<std::pair<int, int>> Board::getValidJumps(int row, int col) const {
 
 				if (board[jumpRow][jumpCol]->getType() == EMPTY) {
 					validJumps.push_back(std::make_pair(jumpRow, jumpCol));
-					std::cout << "Valid jump: (" << jumpRow << ", " << jumpCol << ")\n";
 				}
 			}
 		}
@@ -272,7 +317,32 @@ std::vector<std::pair<int, int>> Board::getValidJumps(int row, int col) const {
 		std::cout << "King! [getValidjumps()]\n";
 		for (int i = 0; i < availableDirections; i++) {
 			auto direction = directions[i];
-			int jumpRow = row + direction.first;
+			int newRow = row + direction.first;
+			int newCol = col + direction.second;
+
+			if (newRow < 0 || newRow >= BOARD_SIZE || newCol < 0 || newCol >= BOARD_SIZE) continue;
+
+			bool check = true;
+			while (board[newRow][newCol]->getColor() != board[row][col]->getColor() && check) {
+				if (board[row][col]->getColor() != board[newRow][newCol]->getColor() && board[newRow][newCol]->getColor() != NONE) {
+					int jumpRow = newRow + direction.first;
+					int jumpCol = newCol + direction.second;
+
+					if (jumpRow < 0 || jumpRow >= BOARD_SIZE || jumpCol < 0 || jumpCol >= BOARD_SIZE) break; // Out of bounds
+
+					if (board[jumpRow][jumpCol]->getType() == EMPTY) {
+						validJumps.push_back(std::make_pair(jumpRow, jumpCol));
+					}
+					else {
+						check = false;
+					}
+				}
+				newRow += direction.first;
+				newCol += direction.second;
+				
+				if (newRow < 0 || newRow >= BOARD_SIZE || newCol < 0 || newCol >= BOARD_SIZE) break;
+			}
+			/*int jumpRow = row + direction.first;
 			int jumpCol = col + direction.second;
 			newRow = jumpRow + direction.first;
 			newCol = jumpCol + direction.second;
@@ -288,7 +358,7 @@ std::vector<std::pair<int, int>> Board::getValidJumps(int row, int col) const {
 				newRow += direction.first;
 				newCol += direction.second;
 					
-			}
+			}*/
 		}
 	}
 
@@ -389,7 +459,28 @@ bool Board::isValidMove(int startRow, int startCol, int endRow, int endCol) cons
 			}
 		}
 		else {
-			// Is king
+			std::vector<std::pair<int, int>> directions;
+			if (board[startRow][startCol]->getColor() == BLACK) directions = { {-1, 1}, {-1, -1}, {1, 1}, {1, -1} };
+			else directions = { {1, 1}, {1, -1}, {-1, 1}, {-1, -1} };
+
+			for (int i = 0; i < 4; i++) {
+				auto direction = directions[i];
+				int newRow = startRow + direction.first;
+				int newCol = startCol + direction.second;
+
+				if (newRow < 0 || newRow >= BOARD_SIZE || newCol < 0 || newCol >= BOARD_SIZE) continue; // Out of bounds
+
+				if (board[startRow][startCol]->getColor() != board[newRow][newCol]->getColor() && board[newRow][newCol]->getColor() != NONE) {
+					int jumpRow = newRow + direction.first;
+					int jumpCol = newCol + direction.second;
+
+					if (jumpRow < 0 || jumpRow >= BOARD_SIZE || jumpCol < 0 || jumpCol >= BOARD_SIZE) continue; // Out of bounds
+
+					if (board[jumpRow][jumpCol]->getType() == EMPTY) {
+						if (jumpRow == endRow && jumpCol == endCol) return true;
+					}
+				}
+			}
 		}
 	}
 
@@ -439,26 +530,35 @@ bool Board::isJump(int startRow, int startCol, int endRow, int endCol) const {
 
 		for (int i = 0; i < 4; i++) {
 			auto direction = directions[i];
-			std::cout << "Direction: " << direction.first << ", " << direction.second << "\n"; // Debug
 			int newRow = startRow + direction.first;
 			int newCol = startCol + direction.second;
 
-			if (newRow < 0 || newRow >= BOARD_SIZE || newCol < 0 || newCol >= BOARD_SIZE) continue; // Out of bounds
+			if (newRow < 0 || newRow >= BOARD_SIZE || newCol < 0 || newCol >= BOARD_SIZE) continue;
 
-			if (board[startRow][startCol]->getColor() != board[newRow][newCol]->getColor() && board[newRow][newCol]->getColor() != NONE) {
-				int jumpRow = newRow + direction.first;
-				int jumpCol = newCol + direction.second;
+			bool check = true;
+			while (board[newRow][newCol]->getColor() != board[startRow][startCol]->getColor() && check) {
+				if (board[startRow][startCol]->getColor() != board[newRow][newCol]->getColor() && board[newRow][newCol]->getColor() != NONE) {
+					int jumpRow = newRow + direction.first;
+					int jumpCol = newCol + direction.second;
 
-				std::cout << "Jump: " << jumpRow << ", " << jumpCol << "\n"; // Debug
+					if (jumpRow < 0 || jumpRow >= BOARD_SIZE || jumpCol < 0 || jumpCol >= BOARD_SIZE) break; // Out of bounds
 
-				if (jumpRow < 0 || jumpRow >= BOARD_SIZE || jumpCol < 0 || jumpCol >= BOARD_SIZE) continue; // Out of bounds
-
-				if (board[jumpRow][jumpCol]->getType() == EMPTY) {
-					if (jumpRow == endRow && jumpCol == endCol) return true;
+					if (board[jumpRow][jumpCol]->getType() == EMPTY) {
+						if (jumpRow == endRow && jumpCol == endCol) {
+							return true;
+						}
+					}
+					else {
+						check = false;
+					}
 				}
+				newRow += direction.first;
+				newCol += direction.second;
+				
+				if (newRow < 0 || newRow >= BOARD_SIZE || newCol < 0 || newCol >= BOARD_SIZE) break;
 			}
-		
 		}
+		return false;
 	}
 	
 

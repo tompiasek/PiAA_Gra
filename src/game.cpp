@@ -33,10 +33,7 @@ Board* Game::playTurn(int startRow, int startCol, int endRow, int endCol) {
 	if (board->movePiece(startRow, startCol, endRow, endCol)) {
 			switchTurn();
 	}
-	else {
-		std::cerr << "Invalid move" << std::endl;
-		return nullptr;
-	}
+	else return nullptr;
 	return board;
 }
 
@@ -50,6 +47,9 @@ bool Game::getTurn() const {
 
 // TO-DO
 bool Game::isGameOver() {
+	if (board->whitePieces == 0 || board->blackPieces == 0) {
+		gameOver = 1;
+	}
 	return gameOver;
 }
 
@@ -71,10 +71,14 @@ void Game::loadGame(std::string path) {
 
 Board* Game::aiMove(Board* b) {
 	this->board = b;
-
-    std::pair<int, Board> bestMove = minimax(std::pair<int,int>(-1, -1), 2, true, *this);
-
+    std::pair<int, Board> bestMove = minimax(std::pair<int,int>(-1, -1), 3, true, *this);
     this->board = new Board(bestMove.second);
+	// TO-DO: Implement multiple jumps for AI
+	/*auto jumps = this->board->allAvailableJumps(1);
+	if (jumps.size() > 0) {
+		std::pair<int, Board> bestMove = minimax(std::pair<int,int>(-1, -1), 2, true, *this);
+		this->board = new Board(bestMove.second);
+	}*/
     switchTurn();
     return board;
 }
