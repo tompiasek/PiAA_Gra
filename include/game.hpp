@@ -11,7 +11,9 @@ struct Move {
 };
 
 class Game {
+public:
 	Board* board;
+private:
 	bool currentPlayer = 0;
 	bool gameOver = 0;
 	std::vector<Move> moves;
@@ -19,6 +21,7 @@ class Game {
 public:
 
 	Game(bool backJump = false, bool mandJump = false, int noStartRows = 3, bool turn = true);
+	Game(const Game& g);
 	void start();
 	void restart();
 	Board* playTurn(int startRow, int startCol, int endRow, int endCol);
@@ -30,7 +33,7 @@ public:
 	void saveGame(std::string path) const;
 	void loadGame(std::string path);
 
-	Board* aiMove(Board b);
+	Board* aiMove(Board* b);
 };
 
 #endif // !GAME_HPP_

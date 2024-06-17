@@ -12,8 +12,6 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-	//CheckersGame game;
-
 	vector<cScreen*> Screens;
 	int screen = 0;
 

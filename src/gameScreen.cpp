@@ -1,4 +1,5 @@
 #include "gameScreen.hpp"
+#include <conio.h>
 
 int GameScreen::Run(sf::RenderWindow &App) {
     App.clear(sf::Color::White);
@@ -13,7 +14,7 @@ int GameScreen::Run(sf::RenderWindow &App) {
 		}
         if (!game.getTurn()) {
                 // AI's turn
-                Board* aiBoard = game.aiMove(&game.getCurrentState());
+                Board* aiBoard = game.aiMove(&(game.getCurrentState()));
                 if (aiBoard != nullptr) {
                     game.setCurrentState(aiBoard);
                 }
@@ -125,7 +126,7 @@ void GameScreen::handleMouseClick(int mouseX, int mouseY) {
 
         bool moveSuccess = false;
         if (game.getCurrentState().isJump(startRow, startCol, endRow, endCol)) {
-            moveSuccess = game.getCurrentState().movePiece(startRow, startCol, endRow, endCol);
+            moveSuccess = this->game.board->movePiece(startRow, startCol, endRow, endCol);
             // If a jump was made, check if there are more jumps available
             if (moveSuccess && !game.getCurrentState().getPiece(endRow, endCol)->isKing()) {
                 if(game.getCurrentState().getValidJumps(endRow, endCol).size() > 0) {
@@ -153,7 +154,9 @@ void GameScreen::handleMouseClick(int mouseX, int mouseY) {
 			}
         }
         else {
-			if (game.getCurrentState().movePiece(startRow, startCol, endRow, endCol)) game.switchTurn();
+			if (this->game.board->movePiece(startRow, startCol, endRow, endCol)) {
+                game.switchTurn();
+            }
 		}
 
         // Reset selection state

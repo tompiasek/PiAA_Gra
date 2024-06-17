@@ -31,6 +31,23 @@ Board::Board(bool backJump, bool mandJump, int startRows) : backwardJump(backJum
 	blackPieces = 4 * startRows;
 }
 
+Board::Board(const Board& b) {
+	this->backwardJump = b.backwardJump;
+	this->mandatoryJump = b.mandatoryJump;
+	this->noStartRows = b.noStartRows;
+
+	for (int i = 0; i < BOARD_SIZE; i++) {
+		for (int j = 0; j < BOARD_SIZE; j++) {
+			this->board[i][j] = new Piece(b.board[i][j]->getType(), b.board[i][j]->getColor());
+		}
+	}
+
+	this->whitePieces = b.whitePieces;
+	this->blackPieces = b.blackPieces;
+	this->whiteKings = b.whiteKings;
+	this->blackKings = b.blackKings;
+}
+
 void Board::display() const {
 	std::cout << "  ";
 	for (int i = 65; i < 65 + BOARD_SIZE; i++) {

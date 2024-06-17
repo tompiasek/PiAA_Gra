@@ -19,6 +19,7 @@ public:
 	int blackKings = 0;
 
 	Board(bool backJump = false, bool mandJump = false, int noStartRows = 3);
+	Board(const Board& b);
 
 	void display() const;
 	void reset();

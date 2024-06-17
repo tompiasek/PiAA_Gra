@@ -7,6 +7,13 @@ Game::Game(bool backJump, bool mandJump, int noStartRows, bool turn) {
 	start();
 }
 
+Game::Game(const Game& g) {
+	this->board = new Board(*g.board);
+	this->currentPlayer = g.currentPlayer;
+	this->gameOver = g.gameOver;
+	this->moves = g.moves;
+}
+
 void Game::start() {
 	gameOver = 0;
 	currentPlayer = WHITE - 1;
@@ -58,11 +65,10 @@ void Game::loadGame(std::string path) {
 	return;
 }
 
-Board* Game::aiMove(Board b) {
-	//board = b;
-    std::pair<int, Board> bestMove = minimax(std::pair<int,int>(-1, -1), 5, true, this);
+Board* Game::aiMove(Board* b) {
+	board = b;
+    std::pair<int, Board> bestMove = minimax(std::pair<int,int>(-1, -1), 3, true, *this);
     board = new Board(bestMove.second);
     switchTurn();
     return board;
 }
-
