@@ -4,6 +4,6 @@
 
 #include "game.hpp"
 
-std::pair<std::pair<int, Board>, std::pair<std::pair<int, int>, bool>> minimax(std::pair<int,int> pos, int depth, bool max_player, Game game, int alpha, int beta);
+std::pair<std::pair<int, Board>, std::pair<std::pair<int, int>, bool>> minimax(std::pair<int,int> pos, int depth, bool max_player, Game game);
 
 #endif // !MINIMAX_ALGORITHM_HPP_

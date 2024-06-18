@@ -84,13 +84,13 @@ bool Game::aiTurn() {
 
 Board* Game::aiMove(Board* b) {
 	this->board = b;
-    std::pair<std::pair<int, Board>, std::pair<std::pair<int, int>, bool>> bestMove = minimax(std::pair<int,int>(-1, -1), 5, true, *this, INT_MIN, INT_MAX);
+    std::pair<std::pair<int, Board>, std::pair<std::pair<int, int>, bool>> bestMove = minimax(std::pair<int,int>(-1, -1), 3, true, *this);
     this->board = new Board(bestMove.first.second);
 	// TO-DO: Implement multiple jumps for AI
 	if (bestMove.second.second) {
 		auto jumps = this->board->getValidJumps(bestMove.second.first.first, bestMove.second.first.second);
 		if (jumps.size() > 0) {
-			std::pair<std::pair<int, Board>, std::pair<std::pair<int, int>, bool>> bestMove = minimax(std::pair<int,int>(bestMove.second.first.first, bestMove.second.first.second), 2, true, *this, INT_MIN, INT_MAX);
+			std::pair<std::pair<int, Board>, std::pair<std::pair<int, int>, bool>> bestMove = minimax(std::pair<int,int>(bestMove.second.first.first, bestMove.second.first.second), 2, true, *this);
 			this->board = new Board(bestMove.first.second);
 		}
 	}

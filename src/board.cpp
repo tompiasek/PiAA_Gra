@@ -417,7 +417,7 @@ std::vector<std::pair<std::pair<int, int>, std::pair<int, int>>> Board::allAvail
 }
 
 int Board::evaluate() const {
-	return whitePieces - blackPieces + 3 * (whiteKings - blackKings);
+	return whitePieces - blackPieces + 2 * (whiteKings - blackKings);
 }
 
 bool Board::isValidMove(int startRow, int startCol, int endRow, int endCol) const {
