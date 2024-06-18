@@ -28,13 +28,17 @@ void Game::restart() {
 	start();
 }
 
-Board* Game::playTurn(int startRow, int startCol, int endRow, int endCol) {
-	if (gameOver) return nullptr;
+std::pair<Board*, bool> Game::playTurn(int startRow, int startCol, int endRow, int endCol) {
+	if (gameOver) return std::make_pair(nullptr, false);
+	bool jump = false;
+	if (board->isJump(startRow, startCol, endRow, endCol)) {
+		jump = true;
+	}
 	if (board->movePiece(startRow, startCol, endRow, endCol)) {
 			switchTurn();
 	}
-	else return nullptr;
-	return board;
+	else return std::make_pair(nullptr, false);
+	return std::make_pair(board, jump);
 }
 
 void Game::switchTurn() {
@@ -69,16 +73,27 @@ void Game::loadGame(std::string path) {
 	return;
 }
 
+bool Game::aiTurn() {
+    Board* aiBoard = this->aiMove(this->getCurrentState());
+    if (aiBoard != nullptr) {
+        this->setCurrentState(aiBoard);
+		return true;
+    }
+	return false;
+}
+
 Board* Game::aiMove(Board* b) {
 	this->board = b;
-    std::pair<int, Board> bestMove = minimax(std::pair<int,int>(-1, -1), 3, true, *this);
-    this->board = new Board(bestMove.second);
+    std::pair<std::pair<int, Board>, std::pair<std::pair<int, int>, bool>> bestMove = minimax(std::pair<int,int>(-1, -1), 3, true, *this);
+    this->board = new Board(bestMove.first.second);
 	// TO-DO: Implement multiple jumps for AI
-	/*auto jumps = this->board->allAvailableJumps(1);
-	if (jumps.size() > 0) {
-		std::pair<int, Board> bestMove = minimax(std::pair<int,int>(-1, -1), 2, true, *this);
-		this->board = new Board(bestMove.second);
-	}*/
+	if (bestMove.second.second) {
+		auto jumps = this->board->getValidJumps(bestMove.second.first.first, bestMove.second.first.second);
+		if (jumps.size() > 0) {
+			std::pair<std::pair<int, Board>, std::pair<std::pair<int, int>, bool>> bestMove = minimax(std::pair<int,int>(bestMove.second.first.first, bestMove.second.first.second), 2, true, *this);
+			this->board = new Board(bestMove.first.second);
+		}
+	}
     switchTurn();
     return board;
 }

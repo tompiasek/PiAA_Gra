@@ -16,14 +16,7 @@ int GameScreen::Run(sf::RenderWindow &App) {
 		}
         if (!game.getTurn()) {
             // AI's turn
-            auto start = std::chrono::high_resolution_clock::now();
-            Board* aiBoard = this->game.aiMove(this->game.getCurrentState());
-            auto end = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> elapsed = end - start;
-            std::cout << "AI's turn took " << elapsed.count() << " seconds\n";
-            if (aiBoard != nullptr) {
-                this->game.setCurrentState(aiBoard);
-            }
+            this->game.aiTurn();
         }
 
         sf::Event event;

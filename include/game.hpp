@@ -24,7 +24,7 @@ public:
 	~Game();
 	void start();
 	void restart();
-	Board* playTurn(int startRow, int startCol, int endRow, int endCol);
+	std::pair<Board*, bool> playTurn(int startRow, int startCol, int endRow, int endCol);
 	void switchTurn();
 	bool getTurn() const;
 	bool isGameOver();
@@ -33,6 +33,7 @@ public:
 	void saveGame(std::string path) const;
 	void loadGame(std::string path);
 
+	bool aiTurn();
 	Board* aiMove(Board* b);
 };
 
