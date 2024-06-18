@@ -23,6 +23,7 @@ private:
     sf::CircleShape selectedPieceHighlight; // Highlight the selected piece
 
 public:
+	// backJump, mandJump, noStartRows, turn
 	GameScreen(void) : game(true, true, 3), pieceSelected(false) {
 
 		if (!whiteTexture.loadFromFile("C:/Users/tompi/source/repos/PiAA-Project_3-Game/external/img/piece_white.png")) {
