@@ -19,10 +19,23 @@ std::pair<std::pair<int, Board>, std::pair<std::pair<int, int>, bool>> minimax(s
             Game newGame = game; // Make a new copy of the game state
             std::pair<Board*, bool> result = newGame.playTurn(move.first.first, move.first.second, move.second.first, move.second.second);
             if (result.first == nullptr) {
-                std::cerr << "Invalid move! [minimax()!!!]" << std::endl;
+                //std::cerr << "Invalid move! [minimax()!!!]" << std::endl;
                 continue;
             }
-            int eval = minimax(std::make_pair(move.second.first, move.second.second), depth - 1, false, newGame).first.first;
+
+            int eval;
+
+            if (result.second) {  // If a jump occurred
+                auto furtherJumps = newGame.getCurrentState()->getValidJumps(move.second.first, move.second.second);
+                if (furtherJumps.size() > 0) {
+                    eval = minimax(move.second, depth - 1, true, newGame).first.first; // Continue exploring jumps as max_player
+                } else {
+                    eval = minimax(move.second, depth - 1, false, newGame).first.first; // No more jumps, switch to min_player
+                }
+            } else {
+                eval = minimax(move.second, depth - 1, false, newGame).first.first; // Standard move, switch to min_player
+            }
+
             if (eval > maxEval) {
                 maxEval = eval;
                 bestBoard = Board(*newGame.getCurrentState());
@@ -36,10 +49,22 @@ std::pair<std::pair<int, Board>, std::pair<std::pair<int, int>, bool>> minimax(s
             Game newGame = game; // Make a new copy of the game state
             std::pair<Board*, bool> result = newGame.playTurn(move.first.first, move.first.second, move.second.first, move.second.second);
             if (result.first == nullptr) {
-                std::cerr << "Invalid move! [minimax()!!!]" << std::endl;
+                //std::cerr << "Invalid move! [minimax()!!!]" << std::endl;
                 continue;
             }
-            int eval = minimax(std::make_pair(move.second.first, move.second.second), depth - 1, true, newGame).first.first;
+
+            int eval;
+            if (result.second) { // If a jump occurred
+                auto furtherJumps = newGame.getCurrentState()->getValidJumps(move.second.first, move.second.second);
+                if (furtherJumps.size() > 0) {
+                    eval = minimax(move.second, depth - 1, false, newGame).first.first; // Continue exploring jumps as min_player
+                } else {
+                    eval = minimax(move.second, depth - 1, true, newGame).first.first; // No more jumps, switch to max_player
+                }
+            } else {
+                eval = minimax(move.second, depth - 1, true, newGame).first.first; // Standard move, switch to max_player
+            }
+
             if (eval < minEval) {
                 minEval = eval;
                 bestBoard = Board(*newGame.getCurrentState());

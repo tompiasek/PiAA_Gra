@@ -1,6 +1,10 @@
 #include "gameScreen.hpp"
 #include <conio.h>
 #include <chrono>
+#include <thread>
+
+using namespace std::this_thread; // sleep_for, sleep_until
+using namespace std::chrono; // nanoseconds, system_clock, seconds
 
 int GameScreen::Run(sf::RenderWindow &App) {
     App.clear(sf::Color::White);
@@ -12,11 +16,17 @@ int GameScreen::Run(sf::RenderWindow &App) {
     while (running) {
         if (game.isGameOver()) {
             std::cout << "Game over!\n";
+            if(game.getCurrentState()->whitePieces == 0 && game.getCurrentState()->whiteKings == 0) std::cout << "Black wins!\n";
+			else if(game.getCurrentState()->blackPieces == 0 && game.getCurrentState()->blackKings == 0) std::cout << "White wins!\n";
+			else std::cout << "It's a draw!\n";
 			return -1;
 		}
         if (!game.getTurn()) {
             // AI's turn
+            App.setActive(false);
+            sleep_for(nanoseconds(200));
             this->game.aiTurn();
+            App.setActive(true);
         }
 
         sf::Event event;

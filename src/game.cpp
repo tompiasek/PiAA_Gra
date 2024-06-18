@@ -1,5 +1,10 @@
 #include "game.hpp"
 #include "algorithm.hpp"
+#include <chrono>
+#include <thread>
+
+using namespace std::this_thread; // sleep_for, sleep_until
+using namespace std::chrono; // nanoseconds, system_clock, seconds
 
 Game::Game(bool backJump, bool mandJump, int noStartRows, bool turn) {
 	board = new Board(backJump, mandJump, noStartRows);
@@ -35,7 +40,16 @@ std::pair<Board*, bool> Game::playTurn(int startRow, int startCol, int endRow, i
 		jump = true;
 	}
 	if (board->movePiece(startRow, startCol, endRow, endCol)) {
+		if (!jump) {
 			switchTurn();
+		} else {
+			auto jumps = board->getValidJumps(endRow, endCol);
+			if (jumps.size() == 0) {
+				switchTurn();
+			} else {
+				return std::make_pair(board, true);
+			}
+		}
 	}
 	else return std::make_pair(nullptr, false);
 	return std::make_pair(board, jump);
@@ -49,9 +63,8 @@ bool Game::getTurn() const {
 	return currentPlayer;
 }
 
-// TO-DO
 bool Game::isGameOver() {
-	if (board->whitePieces == 0 || board->blackPieces == 0) {
+	if ((board->whitePieces == 0 && board->whiteKings) || (board->blackPieces == 0 && board->blackKings)) {
 		gameOver = 1;
 	}
 	return gameOver;
@@ -85,11 +98,15 @@ bool Game::aiTurn() {
 Board* Game::aiMove(Board* b) {
 	this->board = b;
     std::pair<std::pair<int, Board>, std::pair<std::pair<int, int>, bool>> bestMove = minimax(std::pair<int,int>(-1, -1), 3, true, *this);
+
+    sleep_for(nanoseconds(1000));
+    sleep_for(nanoseconds(1000));
     this->board = new Board(bestMove.first.second);
 	// TO-DO: Implement multiple jumps for AI
 	if (bestMove.second.second) {
 		auto jumps = this->board->getValidJumps(bestMove.second.first.first, bestMove.second.first.second);
 		if (jumps.size() > 0) {
+            sleep_for(nanoseconds(1000));
 			std::pair<std::pair<int, Board>, std::pair<std::pair<int, int>, bool>> bestMove = minimax(std::pair<int,int>(bestMove.second.first.first, bestMove.second.first.second), 2, true, *this);
 			this->board = new Board(bestMove.first.second);
 		}
